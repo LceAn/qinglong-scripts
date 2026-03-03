@@ -133,108 +133,160 @@ class Tieba:
                 if isinstance(item, dict) and "name" in item:
                     forums.append({
                         "name": item.get("name", ""),
-                        "fid": item.get("id", ""),
+                        "fid": str(item.get("id", "")),
+                        "old_level": int(item.get("user_level", 0)),
+                        "old_exp": int(item.get("user_exp", 0)),
                     })
             
+            if str(res.get("has_more")) != "1":
+                break
+            
             page_no += 1
-            time.sleep(random.uniform(0.5, 1.5))
+            time.sleep(random.uniform(0.5, 1.0))
         
         print(f"共获取到 {len(forums)} 个关注的贴吧")
         return forums
+
+
 
     def get_tbs(self) -> str:
         """获取 TBS 令牌"""
         res = self.request(self.TBS_URL, "get")
         return res.get("tbs", "")
 
-    def sign(self, forum: dict) -> dict:
-        """签到单个贴吧"""
-        data = {
-            "BDUSS": self.bduss,
-            "fid": forum["fid"],
-            "tbs": self.get_tbs(),
-        }
-        data.update(self.SIGN_DATA)
-        data = self.encode_data(data)
-        return self.request(self.SIGN_URL, "post", data)
+    def final_report(self, total: int, stats: dict):
+        """生成最终报告"""
+        print("\n" + "=" * 50)
+        print("📊 签到完成报告")
+        print("=" * 50)
+        print(f"总计贴吧：{total} 个")
+        print(f"✅ 签到成功：{stats['success']} 个")
+        print(f"⚠️  已签到：{stats['exist']} 个")
+        print(f"❌ 签到失败：{stats['error']} 个")
+        
+        if stats["upgraded"]:
+            print(f"\n🎉 升级贴吧 ({len(stats['upgraded'])} 个):")
+            for bar in stats["upgraded"]:
+                print(f"  • {bar}")
+        
+        print("=" * 50)
 
     def run(self):
-        """执行签到任务"""
-        result = {
-            "total": 0,
+        """执行签到任务（批量增强版）"""
+        print("--- 百度贴吧自动签到 (推送增强版) ---")
+        
+        # 获取 TBS
+        tbs_res = self.request(self.TBS_URL, method="get")
+        tbs = tbs_res.get("tbs") if tbs_res.get("is_login") == 1 else None
+        
+        if not tbs:
+            print("【错误】获取 TBS 失败，登录失效")
+            return
+        
+        # 获取贴吧列表并去重
+        raw_forums = self.get_favorite()
+        forums = []
+        seen_fids = set()
+        
+        for f in raw_forums:
+            if f['fid'] not in seen_fids:
+                seen_fids.add(f['fid'])
+                forums.append(f)
+        
+        total = len(forums)
+        print(f"列表同步完成：共发现 {total} 个贴吧。")
+        
+        if total == 0:
+            return
+        
+        # 批量签到
+        stats = {
             "success": 0,
-            "failed": 0,
-            "already": 0,
-            "details": [],
+            "exist": 0,
+            "error": 0,
+            "upgraded": [],
         }
         
-        try:
-            forums = self.get_favorite()
-            result["total"] = len(forums)
+        pointer = 0
+        while pointer < total:
+            batch_size = random.randint(5, 10)
+            batch = forums[pointer : pointer + batch_size]
             
-            for i, forum in enumerate(forums, 1):
-                print(f"[{i}/{len(forums)}] 正在签到：{forum['name']}")
-                res = self.sign(forum)
+            for idx, f in enumerate(batch):
+                curr_idx = pointer + idx + 1
+                time.sleep(random.uniform(0.2, 0.5))
                 
-                if res.get("error_code") == "0":
-                    result["success"] += 1
-                    msg = f"✅ {forum['name']} 签到成功"
-                    print(msg)
-                    result["details"].append(msg)
-                elif res.get("error_code") == "160002":
-                    result["already"] += 1
-                    msg = f"⚠️ {forum['name']} 已签到"
-                    print(msg)
-                    result["details"].append(msg)
+                raw_data = {
+                    "BDUSS": self.bduss,
+                    "fid": f['fid'],
+                    "kw": f['name'],
+                    "tbs": tbs,
+                    "timestamp": str(int(time.time())),
+                }
+                raw_data.update(self.SIGN_DATA)
+                data = self.encode_data(raw_data)
+                res = self.request(self.SIGN_URL, "post", data)
+                
+                code = str(res.get("error_code", ""))
+                log_prefix = f"[{curr_idx}/{total}] {f['name']}吧："
+                
+                if code in ["0", "160002"]:
+                    if code == "0":
+                        stats["success"] += 1
+                    else:
+                        stats["exist"] += 1
+                    
+                    u_info = res.get("user_info", {})
+                    new_level = int(u_info.get("user_level", f['old_level']))
+                    new_exp = int(u_info.get("user_exp", f['old_exp']))
+                    gain_exp = new_exp - f['old_exp'] if new_exp > f['old_exp'] else 0
+                    
+                    status = "成功" if code == "0" else "已签"
+                    exp_tip = f" (Exp+{gain_exp})" if gain_exp > 0 else ""
+                    
+                    if new_level > f['old_level']:
+                        stats["upgraded"].append(f"{f['name']}吧 (Lv.{f['old_level']} -> Lv.{new_level})")
+                        print(f"{log_prefix}{status}{exp_tip} ✨ 升级了！")
+                    else:
+                        print(f"{log_prefix}{status}{exp_tip}")
                 else:
-                    result["failed"] += 1
-                    error_msg = res.get("error_msg", "未知错误")
-                    msg = f"❌ {forum['name']} 签到失败：{error_msg}"
-                    print(msg)
-                    result["details"].append(msg)
-                
-                # 随机延迟，避免请求过快
-                time.sleep(random.uniform(0.5, 2.0))
+                    stats["error"] += 1
+                    print(f"{log_prefix}失败 ({res.get('error_msg', '未知错误')})")
             
-        except Exception as e:
-            print(f"执行异常：{e}")
-            result["details"].append(f"执行异常：{e}")
+            pointer += batch_size
+            
+            if pointer < total:
+                wait = random.uniform(6, 12)
+                print(f"\n--- 完成一组，随机休眠 {wait:.1f}s ---\n")
+                time.sleep(wait)
         
-        return result
+        # 生成最终报告
+        self.final_report(total, stats)
+        
+        # 发送通知
+        summary = (
+            f"📊 签到汇总\n"
+            f"总计：{total} 个贴吧\n"
+            f"✅ 成功：{stats['success']} 个\n"
+            f"⚠️  已签：{stats['exist']} 个\n"
+            f"❌ 失败：{stats['error']} 个\n"
+        )
+        
+        if stats["upgraded"]:
+            summary += f"\n🎉 升级 ({len(stats['upgraded'])}个):\n"
+            for bar in stats["upgraded"][:5]:  # 只显示前 5 个
+                summary += f"  • {bar}\n"
+            if len(stats["upgraded"]) > 5:
+                summary += f"  ... 还有 {len(stats['upgraded']) - 5} 个\n"
+        
+        send("百度贴吧签到", summary)
 
 
 def main():
     """主函数"""
-    print("=" * 50)
-    print("百度贴吧自动签到")
-    print("=" * 50)
-    
     try:
         tieba = Tieba()
-        result = tieba.run()
-        
-        # 生成通知内容
-        summary = (
-            f"📊 签到汇总\n"
-            f"总计：{result['total']} 个贴吧\n"
-            f"✅ 成功：{result['success']} 个\n"
-            f"⚠️ 已签：{result['already']} 个\n"
-            f"❌ 失败：{result['failed']} 个\n"
-        )
-        
-        details = "\n".join(result["details"][:20])  # 只显示前 20 条详情
-        if len(result["details"]) > 20:
-            details += f"\n... 还有 {len(result['details']) - 20} 条"
-        
-        content = f"{summary}\n{details}"
-        
-        # 发送通知
-        send("百度贴吧签到", content)
-        
-        print("\n" + "=" * 50)
-        print(summary)
-        print("=" * 50)
-        
+        tieba.run()
     except ValueError as e:
         error_msg = f"配置错误：{e}"
         print(error_msg)

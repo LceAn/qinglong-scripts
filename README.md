@@ -64,6 +64,7 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 | 脚本名称 | 功能 | 状态 |
 |---------|------|------|
 | baidu_tieba.py | 百度贴吧自动签到 | ✅ 可用 |
+| baidu_wangpan.py | 百度网盘签到任务 | ✅ 可用 |
 
 ### JavaScript 脚本
 
@@ -81,11 +82,18 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 
 ## ⚙️ 环境变量
 
-### 百度贴吧签到
+### 百度系列
 
-| 变量名 | 说明 | 必填 |
-|-------|------|------|
-| BAIDU_COOKIE | 百度贴吧 Cookie（包含 BDUSS 字段） | ✅ 必填 |
+| 变量名 | 说明 | 必填 | 适用脚本 |
+|-------|------|------|---------|
+| BAIDU_COOKIE | 百度 Cookie（包含 BDUSS 字段） | ✅ 必填 | 贴吧、网盘 |
+
+**Cookie 获取方法：**
+1. 打开浏览器访问对应网站（tieba.baidu.com 或 pan.baidu.com）
+2. 登录百度账号
+3. 按 F12 打开开发者工具
+4. 复制 Cookie 全部内容
+5. 在青龙面板中添加环境变量 `BAIDU_COOKIE`
 
 **Cookie 获取方法：**
 1. 打开浏览器访问 tieba.baidu.com
@@ -106,6 +114,16 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 
 # 每天早上 8 点和晚上 8 点各签到一次
 0 8,20 * * *
+```
+
+### 百度网盘签到
+
+```bash
+# 每天早上 8 点签到
+0 8 * * *
+
+# 每天早上 9 点签到
+0 9 * * *
 ```
 
 ### 通用 Cron 表达式
@@ -152,7 +170,12 @@ MIT License
 
 ## 📝 更新日志
 
-### 2026-03-03
+### 2026-03-03 (v2)
+- ✅ 新增：百度网盘签到脚本 (baidu_wangpan.py)
+- ✅ 更新：百度贴吧脚本 v2.0（批量签到、等级检测）
+- ✅ 优化：通知报告格式统一
+
+### 2026-03-03 (v1)
 - ✅ 新增：百度贴吧自动签到脚本 (baidu_tieba.py)
 
 ---

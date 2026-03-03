@@ -156,20 +156,32 @@ class Tieba:
 
     def final_report(self, total: int, stats: dict):
         """生成最终报告"""
-        print("\n" + "=" * 50)
-        print("📊 签到完成报告")
-        print("=" * 50)
-        print(f"总计贴吧：{total} 个")
-        print(f"✅ 签到成功：{stats['success']} 个")
-        print(f"⚠️  已签到：{stats['exist']} 个")
-        print(f"❌ 签到失败：{stats['error']} 个")
+        report = [
+            "\n" + "="*30,
+            " 贴吧签到运行报告",
+            "="*30,
+            f"📊 任务总数：{total}",
+            f"✅ 成功签到：{stats['success']}",
+            f"⏭️ 今日已签：{stats['exist']}",
+            f"❌ 签到失败：{stats['error']}",
+            f"⬆️ 升级吧数：{len(stats['upgraded'])}"
+        ]
         
         if stats["upgraded"]:
-            print(f"\n🎉 升级贴吧 ({len(stats['upgraded'])} 个):")
-            for bar in stats["upgraded"]:
-                print(f"  • {bar}")
+            report.append("\n📈 升级名单:")
+            for item in stats["upgraded"]:
+                report.append(f"- {item}")
         
-        print("=" * 50)
+        report.append("="*30)
+        report_text = "\n".join(report)
+        print(report_text)
+        
+        # 发送通知
+        try:
+            send("贴吧签到报告", report_text)
+            print("\n✅ 通知已发送")
+        except Exception as e:
+            print(f"\n❌ 通知推送异常：{e}")
 
     def run(self):
         """执行签到任务（批量增强版）"""
@@ -263,23 +275,7 @@ class Tieba:
         # 生成最终报告
         self.final_report(total, stats)
         
-        # 发送通知
-        summary = (
-            f"📊 签到汇总\n"
-            f"总计：{total} 个贴吧\n"
-            f"✅ 成功：{stats['success']} 个\n"
-            f"⚠️  已签：{stats['exist']} 个\n"
-            f"❌ 失败：{stats['error']} 个\n"
-        )
-        
-        if stats["upgraded"]:
-            summary += f"\n🎉 升级 ({len(stats['upgraded'])}个):\n"
-            for bar in stats["upgraded"][:5]:  # 只显示前 5 个
-                summary += f"  • {bar}\n"
-            if len(stats["upgraded"]) > 5:
-                summary += f"  ... 还有 {len(stats['upgraded']) - 5} 个\n"
-        
-        send("百度贴吧签到", summary)
+
 
 
 def main():
@@ -298,4 +294,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    Tieba().run()

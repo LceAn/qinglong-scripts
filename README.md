@@ -63,7 +63,7 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 
 | 脚本名称 | 功能 | 状态 |
 |---------|------|------|
-| 待添加 | - | - |
+| baidu_tieba.py | 百度贴吧自动签到 | ✅ 可用 |
 
 ### JavaScript 脚本
 
@@ -81,17 +81,36 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 
 ## ⚙️ 环境变量
 
-根据脚本需求配置相应的环境变量。
+### 百度贴吧签到
 
 | 变量名 | 说明 | 必填 |
 |-------|------|------|
-| 待添加 | - | - |
+| BAIDU_COOKIE | 百度贴吧 Cookie（包含 BDUSS 字段） | ✅ 必填 |
+
+**Cookie 获取方法：**
+1. 打开浏览器访问 tieba.baidu.com
+2. 登录百度账号
+3. 按 F12 打开开发者工具
+4. 复制 Cookie 全部内容
+5. 在青龙面板中添加环境变量 `BAIDU_COOKIE`
 
 ---
 
 ## 📋 定时任务配置示例
 
+### 百度贴吧签到
+
+```bash
+# 每天早上 9 点签到
+0 9 * * *
+
+# 每天早上 8 点和晚上 8 点各签到一次
+0 8,20 * * *
 ```
+
+### 通用 Cron 表达式
+
+```bash
 # 每天运行一次
 0 0 * * *
 
@@ -129,6 +148,12 @@ MIT License
 
 - [青龙面板 GitHub](https://github.com/whyour/qinglong)
 - [青龙面板文档](https://docs.qinglong.pro/)
+- [百度贴吧](https://tieba.baidu.com)
+
+## 📝 更新日志
+
+### 2026-03-03
+- ✅ 新增：百度贴吧自动签到脚本 (baidu_tieba.py)
 
 ---
 

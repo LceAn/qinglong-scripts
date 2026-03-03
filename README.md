@@ -1,152 +1,161 @@
-# 青龙面板脚本仓库
+# 🐉 青龙脚本仓库
 
-<p align="center">
-  <h3 align="center">🐉 青龙面板定时任务脚本</h3>
-  <p align="center">
-    个人编写的青龙面板脚本集合
-    <br>
-    <a href="#scripts">查看脚本</a>
-    ·
-    <a href="#usage">使用说明</a>
-    ·
-    <a href="#license">许可证</a>
-  </p>
-</p>
+> 📦 个人编写的青龙面板定时任务脚本集合
+
+[![GitHub license](https://img.shields.io/github/license/LceAn/qinglong-scripts)](https://github.com/LceAn/qinglong-scripts/blob/main/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/LceAn/qinglong-scripts)](https://github.com/LceAn/qinglong-scripts/issues)
+[![GitHub stars](https://img.shields.io/github/stars/LceAn/qinglong-scripts)](https://github.com/LceAn/qinglong-scripts/stargazers)
+[![Last Commit](https://img.shields.io/github/last-commit/LceAn/qinglong-scripts)](https://github.com/LceAn/qinglong-scripts/commits/main)
 
 ---
 
-## 📖 关于
+## 📖 目录
 
-本仓库用于存放个人编写的青龙面板（QingLong Panel）定时任务脚本。
-
-**青龙面板** 是一个强大的定时任务管理面板，支持运行 Python、JavaScript、Shell 等多种语言的脚本。
-
----
-
-## 📁 目录结构
-
-```
-qinglong-scripts/
-├── README.md              # 本文件
-├── python/                # Python 脚本
-│   └── example.py
-├── js/                    # JavaScript 脚本
-│   └── example.js
-└── shell/                 # Shell 脚本
-    └── example.sh
-```
+- [快速开始](#-快速开始)
+- [脚本列表](#-脚本列表)
+- [环境变量](#-环境变量)
+- [定时任务配置](#-定时任务配置)
+- [常见问题](#-常见问题)
+- [更新日志](#-更新日志)
 
 ---
 
 ## 🚀 快速开始
 
-### 1. 拉取仓库
+### 1️⃣ 拉取仓库
+
+在青龙面板中执行：
 
 ```bash
-# 在青龙面板中拉取本仓库
 ql repo https://github.com/LceAn/qinglong-scripts.git
 ```
 
-### 2. 配置环境变量
+### 2️⃣ 配置环境变量
 
-根据具体脚本需求，在青龙面板中配置相应的环境变量。
+在青龙面板 → 环境变量 中添加：
 
-### 3. 添加定时任务
+| 变量名 | 值 | 说明 |
+|--------|-----|------|
+| `BAIDU_COOKIE` | `BDUSS=xxx; BAIDUID=xxx;` | 百度 Cookie |
 
-在青龙面板中添加定时任务，设置执行时间和脚本名称。
+### 3️⃣ 添加定时任务
+
+在青龙面板 → 定时任务 中添加新任务：
+
+- **命令：** `python <脚本名>.py`
+- **定时规则：** 参考下方的 [定时任务配置](#-定时任务配置)
 
 ---
 
-## 📝 脚本列表
+## 📜 脚本列表
 
 ### Python 脚本
 
-| 脚本名称 | 功能 | 状态 |
-|---------|------|------|
-| baidu_tieba.py | 百度贴吧自动签到 | ✅ 可用 |
-| baidu_wangpan.py | 百度网盘签到 + 每日一题 | ✅ 可用 |
+| 脚本 | 功能 | 推荐指数 | 定时建议 |
+|------|------|----------|----------|
+| [baidu_tieba.py](python/baidu_tieba.py) | 百度贴吧自动签到 | ⭐⭐⭐⭐⭐ | 每天 9:00 |
+| [baidu_wangpan.py](python/baidu_wangpan.py) | 百度网盘签到 + 每日一题 | ⭐⭐⭐⭐⭐ | 每天 8:00 |
 
 ### JavaScript 脚本
 
-| 脚本名称 | 功能 | 状态 |
-|---------|------|------|
-| 待添加 | - | - |
+> 暂无，敬请期待...
 
 ### Shell 脚本
 
-| 脚本名称 | 功能 | 状态 |
-|---------|------|------|
-| 待添加 | - | - |
+> 暂无，敬请期待...
 
 ---
 
 ## ⚙️ 环境变量
 
-### 百度系列
+### 百度系列（共用）
 
-| 变量名 | 说明 | 必填 | 适用脚本 |
-|-------|------|------|---------|
-| BAIDU_COOKIE | 百度 Cookie（包含 BDUSS 字段） | ✅ 必填 | 贴吧、网盘 |
+```bash
+BAIDU_COOKIE=BDUSS=xxx; BAIDUID=xxx; ...
+```
 
-**Cookie 获取方法：**
-1. 打开浏览器访问对应网站（tieba.baidu.com 或 pan.baidu.com）
+**获取方法：**
+
+1. 浏览器访问 [tieba.baidu.com](https://tieba.baidu.com) 或 [pan.baidu.com](https://pan.baidu.com)
 2. 登录百度账号
-3. 按 F12 打开开发者工具
-4. 复制 Cookie 全部内容
-5. 在青龙面板中添加环境变量 `BAIDU_COOKIE`
-
-**Cookie 获取方法：**
-1. 打开浏览器访问 tieba.baidu.com
-2. 登录百度账号
-3. 按 F12 打开开发者工具
-4. 复制 Cookie 全部内容
+3. 按 `F12` 打开开发者工具
+4. 找到 `Cookie` 并复制全部内容
 5. 在青龙面板中添加环境变量 `BAIDU_COOKIE`
 
 ---
 
-## 📋 定时任务配置示例
+## 📅 定时任务配置
 
-### 百度贴吧签到
+### 推荐配置
 
 ```bash
-# 每天早上 9 点签到
+# 百度贴吧签到 - 每天早上 9 点
 0 9 * * *
+python baidu_tieba.py
 
-# 每天早上 8 点和晚上 8 点各签到一次
-0 8,20 * * *
-```
-
-### 百度网盘签到
-
-```bash
-# 每天早上 8 点签到
+# 百度网盘签到 - 每天早上 8 点
 0 8 * * *
-
-# 每天早上 9 点签到
-0 9 * * *
+python baidu_wangpan.py
 ```
 
-### 通用 Cron 表达式
+### Cron 表达式参考
 
-```bash
-# 每天运行一次
-0 0 * * *
-
-# 每小时运行一次
-0 * * * *
-
-# 每 5 分钟运行一次
-*/5 * * * *
-```
+| 表达式 | 说明 |
+|--------|------|
+| `0 9 * * *` | 每天 9:00 |
+| `0 8,20 * * *` | 每天 8:00 和 20:00 |
+| `*/5 * * * *` | 每 5 分钟 |
+| `0 0 * * 0` | 每周日 0:00 |
 
 ---
 
-## ⚠️ 注意事项
+## ❓ 常见问题
 
-1. 本仓库脚本仅供学习交流使用
-2. 请遵守相关平台的使用条款
-3. 使用脚本产生的风险由使用者自行承担
-4. 请合理使用定时任务，避免频繁请求
+### Q: 如何获取 Cookie？
+
+**A:** 参考上方 [环境变量](#-环境变量) 部分的详细说明。
+
+### Q: 脚本运行失败怎么办？
+
+**A:** 
+1. 检查环境变量是否正确配置
+2. 检查 Cookie 是否过期（重新获取）
+3. 查看运行日志，确认错误信息
+
+### Q: 如何更新脚本？
+
+**A:** 
+```bash
+# 在青龙面板中重新拉取仓库
+ql repo https://github.com/LceAn/qinglong-scripts.git
+```
+
+### Q: 可以多个账号一起用吗？
+
+**A:** 
+可以！在青龙面板中添加多个环境变量，使用不同的变量名：
+- `BAIDU_COOKIE_1`
+- `BAIDU_COOKIE_2`
+- ...
+
+然后在脚本中读取对应的变量即可。
+
+---
+
+## 📝 更新日志
+
+### v3.0 - 2026-03-03
+- ✨ 百度网盘脚本 v2.0 - 新增每日一题自动答题
+- 🐛 百度贴吧脚本 v2.0 - 优化通知报告格式
+- 📖 README 重构 - 更友好、更美观
+
+### v2.0 - 2026-03-03
+- ✨ 百度贴吧脚本 v2.0 - 批量签到、等级检测、经验显示
+- 📖 新增环境变量说明和定时任务配置
+
+### v1.0 - 2026-03-03
+- ✨ 初始版本 - 百度贴吧自动签到脚本
+- 🎉 仓库创建
 
 ---
 
@@ -154,11 +163,14 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 
 欢迎提交 Issue 和 Pull Request！
 
+- 发现 Bug？ → [提交 Issue](https://github.com/LceAn/qinglong-scripts/issues)
+- 有新脚本？ → [提交 PR](https://github.com/LceAn/qinglong-scripts/pulls)
+
 ---
 
 ## 📄 许可证
 
-MIT License
+MIT License © 2026 [LceAn](https://github.com/LceAn)
 
 ---
 
@@ -167,22 +179,10 @@ MIT License
 - [青龙面板 GitHub](https://github.com/whyour/qinglong)
 - [青龙面板文档](https://docs.qinglong.pro/)
 - [百度贴吧](https://tieba.baidu.com)
-
-## 📝 更新日志
-
-### 2026-03-03 (v3)
-- ✅ 更新：百度网盘脚本 v2.0（新增每日一题）
-- ✅ 更新：百度贴吧脚本 v2.0（批量签到、等级检测）
-- ✅ 优化：通知报告格式统一
-
-### 2026-03-03 (v2)
-- ✅ 新增：百度网盘签到脚本 (baidu_wangpan.py)
-
-### 2026-03-03 (v1)
-- ✅ 新增：百度贴吧自动签到脚本 (baidu_tieba.py)
+- [百度网盘](https://pan.baidu.com)
 
 ---
 
 <p align="center">
-  ⭐ 如果对你有帮助，请给个 Star 吧！
+  <b>如果对你有帮助，请给个 ⭐ Star 吧！</b>
 </p>

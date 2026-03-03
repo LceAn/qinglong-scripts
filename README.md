@@ -64,7 +64,7 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 | 脚本名称 | 功能 | 状态 |
 |---------|------|------|
 | baidu_tieba.py | 百度贴吧自动签到 | ✅ 可用 |
-| baidu_wangpan.py | 百度网盘签到任务 | ✅ 可用 |
+| baidu_wangpan.py | 百度网盘签到 + 每日一题 | ✅ 可用 |
 
 ### JavaScript 脚本
 
@@ -170,10 +170,13 @@ MIT License
 
 ## 📝 更新日志
 
-### 2026-03-03 (v2)
-- ✅ 新增：百度网盘签到脚本 (baidu_wangpan.py)
+### 2026-03-03 (v3)
+- ✅ 更新：百度网盘脚本 v2.0（新增每日一题）
 - ✅ 更新：百度贴吧脚本 v2.0（批量签到、等级检测）
 - ✅ 优化：通知报告格式统一
+
+### 2026-03-03 (v2)
+- ✅ 新增：百度网盘签到脚本 (baidu_wangpan.py)
 
 ### 2026-03-03 (v1)
 - ✅ 新增：百度贴吧自动签到脚本 (baidu_tieba.py)

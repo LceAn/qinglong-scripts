@@ -3,7 +3,8 @@
 
 功能：
 - 自动签到获取积分
-- 完成成长值任务
+- 每日一题自动答题
+- 获取用户信息（等级、成长值）
 - 支持多账号
 - 青龙面板通知
 
@@ -12,7 +13,7 @@
   格式：BDUSS=xxx; BAIDUID=xxx; ...
 
 作者：用户自定义
-版本：1.0
+版本：2.0
 日期：2026-03-03
 """
 
@@ -110,92 +111,99 @@ def delay(seconds):
     time.sleep(seconds)
 
 
-def get_user_info():
-    """
-    获取用户信息
-    采用"JSON 优先，Regex 备用"的双重解析策略，确保在各种网络环境下都能获取信息
-    """
-    url = 'https://pan.baidu.com/rest/2.0/membership/user?app_id=250528&web=5&method=query'
-    
+def get_daily_question():
+    """获取每日一题，返回答案、ID、是否已回答"""
+    url = 'https://pan.baidu.com/act/v2/membergrowv2/getdailyquestion?app_id=250528&web=5'
     try:
         response = requests.get(url, headers=HEADERS, timeout=10)
-        
-        # 1. 优先尝试 JSON 解析
+        data = response.json()
+        if data.get("errno") == 0 and data.get("data"):
+            if data["data"].get("user_info", {}).get("is_answer") == 1:
+                return None, None, True
+            return str(data["data"].get("answer")), str(data["data"].get("ask_id")), False
+    except Exception as e:
+        print(f"获取每日一题异常：{e}")
+    return None, None, False
+
+
+def answer_question(answer, ask_id):
+    """提交答案并返回结果字符串"""
+    url = f'https://pan.baidu.com/act/v2/membergrowv2/answerquestion?app_id=250528&web=5&ask_id={ask_id}&answer={answer}'
+    try:
+        response = requests.get(url, headers=HEADERS, timeout=10)
+        data = response.json()
+        if data.get("errno") == 0:
+            return f"✅ 答题成功：获得积分 +{data.get('data', {}).get('score', '未知')}"
+        elif "exceeded limit" in data.get("show_msg", ""):
+            return f"🤔 答题提醒：今日已答题"
+        else:
+            return f"❌ 答题失败：{data.get('show_msg', '未知错误')}"
+    except Exception as e:
+        return f"❌ 答题异常：{e}"
+
+
+def get_user_info():
+    """获取用户信息，优先使用 JSON 解析，失败则回退到 Regex"""
+    url = 'https://pan.baidu.com/rest/2.0/membership/user?app_id=250528&web=5&method=query'
+    try:
+        response = requests.get(url, headers=HEADERS, timeout=10)
         try:
             data = response.json()
-            if data.get("errno") == 0:
-                user_data = data.get('user_info', {})
-                return {
-                    'level': user_data.get('level', '未知'),
-                    'name': user_data.get('name', '未知'),
-                    'points': user_data.get('points', '未知')
-                }
+            if data.get("errno") == 0 and data.get("user_info"):
+                user_info = data["user_info"]
+                current_value = user_info.get("current_value", '未知')
+                current_level = user_info.get("current_level", '未知')
+                return f"👤 用户信息：V{current_level}会员，成长值 {current_value}"
         except json.JSONDecodeError:
-            # JSON 解析失败，忽略，让后续的 Regex 处理
             pass
-        
-        # 2. 如果 JSON 解析不成功，回退到 Regex 尝试
         if response.status_code == 200:
-            level_match = re.search(r'"level":(\d+)', response.text)
-            name_match = re.search(r'"name":"(.*?)"', response.text)
-            points_match = re.search(r'"points":(\d+)', response.text)
-            
-            if level_match or name_match or points_match:
-                return {
-                    'level': level_match.group(1) if level_match else '未知',
-                    'name': name_match.group(1) if name_match else '未知',
-                    'points': points_match.group(1) if points_match else '未知'
-                }
-        
-        return None
-    
+            current_value_match = re.search(r'current_value":(\d+)', response.text)
+            current_level_match = re.search(r'current_level":(\d+)', response.text)
+            if current_value_match and current_level_match:
+                current_value = current_value_match.group(1)
+                current_level = current_level_match.group(1)
+                return f"👤 用户信息 (兼容模式): V{current_level}会员，成长值 {current_value}"
+        return f"❌ 获取用户信息失败：所有模式均未获取到信息。"
     except Exception as e:
-        print(f"获取用户信息异常：{e}")
-        return None
+        return f"❌ 获取用户信息异常：{e}"
 
 
 def main():
-    """主函数"""
-    print("=" * 50)
-    print(SCRIPT_TITLE)
-    print("=" * 50)
+    """主函数 - 保持简单的顺序执行逻辑"""
+    notification_content = []
     
-    results = []
-    
-    # 获取用户信息
-    print("\n📱 获取用户信息...")
-    user_info = get_user_info()
-    if user_info:
-        info_text = f"👤 用户：{user_info['name']} | Lv.{user_info['level']} | 积分：{user_info['points']}"
-        print(info_text)
-        results.append(info_text)
-    else:
-        print("❌ 获取用户信息失败")
-        results.append("❌ 获取用户信息失败")
-    
-    # 执行签到
-    print("\n📅 执行签到...")
+    # 任务 1: 签到
     signin_result = signin()
     print(signin_result)
-    results.append(f"\n{signin_result}")
+    notification_content.append(signin_result)
     
-    # 生成报告
-    report = "\n".join([
-        "=" * 30,
-        " 百度网盘任务报告",
-        "=" * 30,
-    ] + results + [
-        "=" * 30
-    ])
+    delay(3)
     
-    print("\n" + report)
+    # 任务 2: 每日一题
+    answer, ask_id, already_answered = get_daily_question()
+    if already_answered:
+        answer_result = "🤔 答题提醒：今日已答题"
+    elif answer and ask_id:
+        answer_result = answer_question(answer, ask_id)
+    else:
+        answer_result = "🟡 答题跳过：未获取到题目"
     
-    # 发送通知
-    try:
-        send(SCRIPT_TITLE, report)
-        print("\n✅ 通知已发送")
-    except Exception as e:
-        print(f"\n❌ 通知推送异常：{e}")
+    print(answer_result)
+    notification_content.append(answer_result)
+    
+    # 任务 3: 获取用户信息
+    user_info_result = get_user_info()
+    print(user_info_result)
+    notification_content.append(user_info_result)
+    
+    # 最后，整合所有结果并发送通知
+    full_content = "\n".join(notification_content)
+    send(SCRIPT_TITLE, full_content)
+
+
+def handler(event, context):
+    """青龙面板 Lambda 处理器"""
+    main()
 
 
 if __name__ == "__main__":

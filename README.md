@@ -53,6 +53,7 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 
 | 脚本 | 功能 | 推荐指数 | 最后更新 | 状态 | 定时建议 |
 |------|------|----------|----------|------|----------|
+| [google_voice_auto_sms.py](python/google_voice_auto_sms.py) | Google Voice 自动保号短信 | ⭐⭐⭐⭐⭐ | 2026-03-10 | ✅ 可用 | 每 15 天 0:00 |
 | [baidu_tieba.py](python/baidu_tieba.py) | 百度贴吧自动签到 | ⭐⭐⭐⭐⭐ | 2026-03-03 | ✅ 可用 | 每天 9:00 |
 | [baidu_wangpan.py](python/baidu_wangpan.py) | 百度网盘签到 + 每日一题 | ⭐⭐⭐⭐⭐ | 2026-03-03 | ✅ 可用 | 每天 8:00 |
 
@@ -71,6 +72,38 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 ---
 
 ## ⚙️ 环境变量
+
+### Google Voice 系列
+
+```bash
+# 必填
+GV_SENDER_EMAIL=your_email@gmail.com
+GV_SENDER_PASSWORD=your_app_password
+GV_RECEIVER_EMAIL=xxxxxxxx@txt.voice.google.com
+
+# 可选
+GV_USE_YAN_YAN=true
+GV_YAN_YAN_API=https://v1.hitokoto.cn/
+```
+
+**获取方法：**
+
+1. **Gmail 应用专用密码：**
+   - 登录 Google 账户 → 安全设置
+   - 启用两步验证
+   - 生成应用专用密码
+   - 复制密码并保存
+
+2. **Google Voice 接收邮箱：**
+   - 访问 [Google Voice](https://voice.google.com/)
+   - 进入设置 → 账号
+   - 找到短信转发邮箱（格式：`xxxxxxxx@txt.voice.google.com`）
+
+3. **配置到青龙：**
+   - 青龙面板 → 环境变量
+   - 添加上述环境变量
+
+---
 
 ### 百度系列（共用）
 
@@ -93,6 +126,10 @@ BAIDU_COOKIE=BDUSS=xxx; BAIDUID=xxx; ...
 ### 推荐配置
 
 ```bash
+# Google Voice 保号短信 - 每 15 天发送一次
+0 0 */15 * * *
+python google_voice_auto_sms.py
+
 # 百度贴吧签到 - 每天早上 9 点
 0 9 * * *
 python baidu_tieba.py
@@ -147,6 +184,12 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 ---
 
 ## 📝 更新日志
+
+### v3.2 - 2026-03-10
+- ✨ 新增 Google Voice 自动保号短信脚本
+- ✨ 每日一言功能集成（hitokoto.cn）
+- 📖 新增 Google Voice 环境变量说明
+- 📖 更新定时任务配置示例
 
 ### v3.1 - 2026-03-03
 - 📖 README 优化 - 脚本列表新增"最后更新"和"状态"列

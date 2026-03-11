@@ -173,8 +173,8 @@ BAIDU_COOKIE=BDUSS=xxx; BAIDUID=xxx; ...
 51 9 * * *
 js/juejin_v3.js
 
-# Google Voice 保号短信 - 每 15 天发送一次（0:00）
-0 0 */15 * * *
+# Google Voice 保号短信 - 每 2 个月 1 号发送一次
+0 0 1 */2 *
 python google_voice_auto_sms.py
 
 # 百度贴吧签到 - 每天早上 9 点

@@ -5,10 +5,11 @@ Google Voice Auto SMS - 自动保号短信发送脚本
 优化版本：添加每日一言功能，替换随机中文乱码
 作者：karllee830 (原始作者)
 优化：LceAn
-版本：v1.1
-日期：2026-03-10
+版本：v1.2
+日期：2026-03-11
+定时：每 2 个月 1 号执行（0 0 1 */2 *）
 
-@cron 0 0 */15 * * *
+@cron 0 0 1 */2 *
 """
 
 import smtplib
@@ -183,17 +184,17 @@ def main():
     # 设置邮件主题
     subject = "Google Voice 保号短信"
     
-    # 生成邮件正文（短信内容，需要简洁）
+    # 生成邮件正文（短信内容）
     if USE_YAN_YAN:
         print("📖 正在获取每日一言...")
         daily_quote = get_daily_quote()
-        # 精简版：只保留核心内容，避免被截断
-        body = f"GV 保号\n{daily_quote}"
+        # 只发送每日一言，不带其他字样
+        body = daily_quote
         print(f"✅ 已获取每日一言：{daily_quote[:30]}...")
         print(f"📱 短信内容：{body}")
     else:
-        random_chinese = generate_random_chinese(16)
-        body = f"GV 保号 {random_chinese}"
+        random_chinese = generate_random_chinese(32)
+        body = random_chinese
         print("✅ 已生成随机中文字符")
         print(f"📱 短信内容：{body}")
     

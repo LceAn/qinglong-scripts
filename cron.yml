@@ -10,8 +10,8 @@ js/juejin_v2.js: 51 9 * * *
 
 # ==================== Python 脚本 ====================
 
-# Google Voice 保号短信 - 每 15 天 0:00 执行
-python/google_voice_auto_sms.py: 0 0 */15 * * *
+# Google Voice 保号短信 - 每 2 个月 1 号 0:00 执行
+python/google_voice_auto_sms.py: 0 0 1 */2 *
 
 # 百度贴吧签到 - 每天 9:00 执行
 python/baidu_tieba.py: 0 9 * * *

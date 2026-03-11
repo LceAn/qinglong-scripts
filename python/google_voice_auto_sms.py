@@ -27,7 +27,7 @@ receiver_email = os.environ.get('GV_RECEIVER_EMAIL', '')
 
 # SMTP 设置
 smtp_server = "smtp.gmail.com"
-smtp_port = 587  # TLS 端口，也可以用 465（SSL）
+smtp_port = int(os.environ.get('GV_SMTP_PORT', '587'))  # 587=TLS, 465=SSL
 
 # 每日一言 API 设置
 YAN_YAN_API = "https://v1.hitokoto.cn/"
@@ -85,10 +85,22 @@ def send_email(subject, body):
     
     server = None
     try:
+        print(f"📡 SMTP 服务器：{smtp_server}:{smtp_port}")
         print("正在连接到 SMTP 服务器...")
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        print("正在登录...")
+        
+        # 根据端口选择连接方式
+        if smtp_port == 465:
+            # SSL 直连
+            server = smtplib.SMTP_SSL(smtp_server, smtp_port)
+            print("✅ 使用 SSL 连接")
+        else:
+            # TLS 连接
+            server = smtplib.SMTP(smtp_server, smtp_port)
+            server.starttls()
+            print("✅ 使用 TLS 连接")
+        
+        print(f"正在登录：{sender_email}...")
+        print(f"密码长度：{len(sender_password)}位")
         server.login(sender_email, sender_password)
         print("正在发送邮件...")
         server.sendmail(sender_email, receiver_email, message.as_string())
@@ -96,22 +108,25 @@ def send_email(subject, body):
         return True
     except smtplib.SMTPConnectError as e:
         print(f"❌ 连接 SMTP 服务器失败：{e}")
+        print("\n💡 尝试修改端口：")
+        print("   - 如使用 587 失败，试试 465（添加环境变量 GV_SMTP_PORT=465）")
+        print("   - 如使用 465 失败，试试 587")
     except smtplib.SMTPAuthenticationError as e:
         print(f"❌ SMTP 认证失败：{e}")
         print("\n💡 可能原因：")
-        print("   1. 使用的是 Gmail 登录密码，而非应用专用密码")
-        print("   2. 未开启 Gmail 两步验证")
-        print("   3. 应用专用密码已过期或错误")
+        print("   1. 密码包含空格（应用专用密码格式：xxxx xxxx xxxx xxxx）")
+        print("   2. 应用专用密码已失效，需要重新生成")
+        print("   3. Google 账户安全设置阻止了登录")
         print("\n✅ 解决方法：")
-        print("   1. 访问：https://myaccount.google.com/security")
-        print("   2. 开启两步验证")
-        print("   3. 访问：https://myaccount.google.com/apppasswords")
-        print("   4. 生成新的应用专用密码（选择'邮件'）")
-        print("   5. 复制 16 位密码（去掉空格）配置到青龙")
+        print("   1. 检查密码是否去掉了所有空格")
+        print("   2. 重新生成应用专用密码：https://myaccount.google.com/apppasswords")
+        print("   3. 尝试切换端口（587 ↔ 465）")
+        print("   4. 检查 Google 账户安全设置")
     except smtplib.SMTPException as e:
         print(f"❌ SMTP 错误：{e}")
     except Exception as e:
         print(f"❌ 发生未知错误：{e}")
+        print(f"   错误类型：{type(e).__name__}")
     finally:
         if server:
             print("正在关闭连接...")
@@ -149,12 +164,19 @@ def main():
     print(f"✅ 发件邮箱：{sender_email}")
     print(f"✅ 收件邮箱：{receiver_email}")
     print(f"✅ 应用密码：{'*' * len(sender_password)} ({len(sender_password)}位)")
+    print(f"✅ SMTP 端口：{smtp_port}")
     
     # 检查密码格式
-    if len(sender_password) != 16:
+    if ' ' in sender_password:
+        print(f"\n⚠️  警告：密码中包含空格！应用专用密码应该去掉所有空格")
+        print(f"   当前密码：'{sender_password}'")
+        print(f"   正确格式：'{''.join(sender_password.split())}'")
+    elif len(sender_password) != 16:
         print(f"\n⚠️  警告：应用专用密码应该是 16 位，当前为{len(sender_password)}位")
         print("   如果不是 16 位，可能配置的是登录密码而非应用专用密码！")
         print("   获取应用专用密码：https://myaccount.google.com/apppasswords")
+    else:
+        print(f"\n✅ 密码格式正确（16 位，无空格）")
     
     print("\n" + "-" * 50)
     

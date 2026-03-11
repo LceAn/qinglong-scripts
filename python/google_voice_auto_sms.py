@@ -7,6 +7,8 @@ Google Voice Auto SMS - 自动保号短信发送脚本
 优化：LceAn
 版本：v1.1
 日期：2026-03-10
+
+@cron 0 0 */15 * * *
 """
 
 import smtplib

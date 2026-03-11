@@ -162,7 +162,7 @@ BAIDU_COOKIE=BDUSS=xxx; BAIDUID=xxx; ...
 51 9 * * *
 js/juejin_v3.js
 
-# Google Voice 保号短信 - 每 15 天发送一次
+# Google Voice 保号短信 - 每 15 天发送一次（0:00）
 0 0 */15 * * *
 python google_voice_auto_sms.py
 
@@ -170,10 +170,12 @@ python google_voice_auto_sms.py
 0 9 * * *
 python baidu_tieba.py
 
-# 百度网盘签到 - 每天早上 8 点
+# 百度网盘签到 + 每日一题 - 每天早上 8 点
 0 8 * * *
 python baidu_wangpan.py
 ```
+
+**提示：** 脚本中已内置 `@cron` 定时规则，青龙拉取后会自动应用。
 
 ### Cron 表达式参考
 

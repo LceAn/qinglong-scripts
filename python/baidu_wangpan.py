@@ -12,6 +12,8 @@
 - BAIDU_COOKIE: 百度网盘 Cookie（必填）
   格式：BDUSS=xxx; BAIDUID=xxx; ...
 
+@cron 0 8 * * *
+
 作者：用户自定义
 版本：2.0
 日期：2026-03-03

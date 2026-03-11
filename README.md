@@ -61,7 +61,7 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 
 | 脚本 | 功能 | 推荐指数 | 最后更新 | 状态 | 定时建议 |
 |------|------|----------|----------|------|----------|
-| [google_voice_auto_sms.py](python/google_voice_auto_sms.py) | Google Voice 自动保号短信 | ⭐⭐⭐⭐⭐ | 2026-03-10 | ✅ 可用 | 每 15 天 0:00 |
+| [google_voice_auto_sms.py](python/google_voice_auto_sms.py) | Google Voice 自动保号短信 | ⭐⭐⭐⭐⭐ | 2026-03-11 | ✅ 可用 | 每 2 个月 1 号 |
 | [baidu_tieba.py](python/baidu_tieba.py) | 百度贴吧自动签到 | ⭐⭐⭐⭐⭐ | 2026-03-03 | ✅ 可用 | 每天 9:00 |
 | [baidu_wangpan.py](python/baidu_wangpan.py) | 百度网盘签到 + 每日一题 | ⭐⭐⭐⭐⭐ | 2026-03-03 | ✅ 可用 | 每天 8:00 |
 
@@ -110,21 +110,17 @@ JUEJIN_EMAIL_TO=收件人邮箱
 ```bash
 # 必填
 GV_SENDER_EMAIL=your_email@gmail.com
-GV_SENDER_PASSWORD=xxxxxxxxxxxxxxxx  # 16 位应用专用密码
+GV_SENDER_PASSWORD=xxxxxxxxxxxxxxxx  # 16 位应用专用密码（去掉空格）
 GV_RECEIVER_EMAIL=xxxxxxxx@txt.voice.google.com
 
 # 可选
-GV_USE_YAN_YAN=true
-GV_YAN_YAN_API=https://v1.hitokoto.cn/
+GV_USE_YAN_YAN=true           # 是否启用每日一言（默认 true）
+GV_YAN_YAN_API=https://v1.hitokoto.cn/  # 一言 API（可选）
 ```
 
-### 钉钉通知（全局通用）
-
-```bash
-# 青龙面板全局配置，所有脚本共用
-DD_BOT_TOKEN=xxx  # 钉钉机器人 access_token
-DD_BOT_SECRET=xxx  # 加签密钥（可选）
-```
+**通知功能：**
+- ✅ 支持钉钉通知（使用全局 `DD_BOT_TOKEN`）
+- 📱 发送成功后推送：发件邮箱、短信内容、发送时间、状态
 
 **⚠️ 重要：必须使用应用专用密码！**
 
@@ -181,7 +177,7 @@ BAIDU_COOKIE=BDUSS=xxx; BAIDUID=xxx; ...
 51 9 * * *
 js/juejin_v3.js
 
-# Google Voice 保号短信 - 每 2 个月 1 号发送一次
+# Google Voice 保号短信 - 每 2 个月 1 号发送一次（带钉钉通知）
 0 0 1 */2 *
 python google_voice_auto_sms.py
 
@@ -194,7 +190,9 @@ python baidu_tieba.py
 python baidu_wangpan.py
 ```
 
-**提示：** 脚本中已内置 `@cron` 定时规则，青龙拉取后会自动应用。
+**提示：** 
+- 脚本中已内置 `@cron` 定时规则，青龙拉取后会自动应用
+- 配置 `DD_BOT_TOKEN` 后，Google Voice 脚本会自动推送通知到钉钉
 
 ### Cron 表达式参考
 
@@ -250,6 +248,13 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 
 ## 📝 更新日志
 
+### v3.4 - 2026-03-11
+- ✨ Google Voice 脚本 v1.3 - 使用青龙标准钉钉环境变量（DD_BOT_TOKEN）
+- ✨ Google Voice 脚本 - 发送成功后推送通知到钉钉
+- ✨ Google Voice 脚本 - 精简短信内容，只发送每日一言
+- 🔧 Google Voice 脚本 - 定时规则调整为每 2 个月 1 号（0 0 1 */2 *）
+- 📖 更新 README 环境变量说明
+
 ### v3.3 - 2026-03-11
 - ✨ 新增 掘金签到脚本 v3.0（纯原生实现，无需依赖）
 - ✨ 新增 掘金签到脚本 v2.0（优化版）
@@ -257,7 +262,7 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 - 📖 新增 JavaScript 脚本分类说明
 
 ### v3.2 - 2026-03-10
-- ✨ 新增 Google Voice 自动保号短信脚本
+- ✨ 新增 Google Voice 自动保号短信脚本（v1.0）
 - ✨ 每日一言功能集成（hitokoto.cn）
 - 📖 新增 Google Voice 环境变量说明
 - 📖 更新定时任务配置示例
@@ -303,6 +308,8 @@ MIT License © 2026 [LceAn](https://github.com/LceAn)
 - [百度网盘](https://pan.baidu.com)
 - [稀土掘金](https://juejin.cn/)
 - [Google Voice](https://voice.google.com/)
+- [钉钉开放平台](https://open.dingtalk.com/document/robots/custom-robot-access)
+- [Gmail 应用专用密码](https://myaccount.google.com/apppasswords)
 
 ---
 

@@ -5,7 +5,7 @@ Google Voice Auto SMS - 自动保号短信发送脚本
 优化版本：添加每日一言功能，替换随机中文乱码
 作者：karllee830 (原始作者)
 优化：LceAn
-版本：v1.2
+版本：v1.3
 日期：2026-03-11
 定时：每 2 个月 1 号执行（0 0 1 */2 *）
 
@@ -37,8 +37,10 @@ USE_YAN_YAN = os.environ.get('GV_USE_YAN_YAN', 'true').lower() == 'true'
 if os.environ.get('GV_YAN_YAN_API'):
     YAN_YAN_API = os.environ.get('GV_YAN_YAN_API')
 
-# 钉钉通知设置
-DINGTALK_WEBHOOK = os.environ.get('GV_DINGTALK_WEBHOOK', '')
+# 钉钉通知设置（使用青龙标准环境变量）
+# 优先级：DD_BOT_TOKEN > DD_BOT_SECRET > 直接 webhook
+DD_BOT_TOKEN = os.environ.get('DD_BOT_TOKEN', '')
+DD_BOT_SECRET = os.environ.get('DD_BOT_SECRET', '')
 
 # 每日一言 API 设置
 # 可选 API:
@@ -81,14 +83,33 @@ def generate_random_chinese(length):
 
 def send_dingtalk_notification(sender_email, sms_content, success=True):
     """
-    发送通知到钉钉机器人
+    发送通知到钉钉机器人（使用青龙标准环境变量 DD_BOT_TOKEN）
     """
-    if not DINGTALK_WEBHOOK:
-        print("ℹ️  未配置钉钉 Webhook，跳过通知")
+    if not DD_BOT_TOKEN:
+        print("ℹ️  未配置 DD_BOT_TOKEN，跳过钉钉通知")
         return False
     
     try:
         print("📱 正在发送钉钉通知...")
+        
+        # 构建 webhook 地址
+        import time
+        import hmac
+        import hashlib
+        import base64
+        import urllib.parse
+        
+        webhook = f"https://oapi.dingtalk.com/robot/send?access_token={DD_BOT_TOKEN}"
+        
+        # 如果配置了 SECRET，添加签名
+        if DD_BOT_SECRET:
+            timestamp = str(round(time.time() * 1000))
+            secret_enc = DD_BOT_SECRET.encode('utf-8')
+            string_to_sign = f'{timestamp}\n{DD_BOT_SECRET}'
+            string_to_sign_enc = string_to_sign.encode('utf-8')
+            hmac_code = hmac.new(secret_enc, string_to_sign_enc, digestmod=hashlib.sha256).digest()
+            sign = urllib.parse.quote_plus(base64.b64encode(hmac_code))
+            webhook = f"{webhook}&timestamp={timestamp}&sign={sign}"
         
         # 构建消息内容
         if success:
@@ -117,7 +138,7 @@ def send_dingtalk_notification(sender_email, sms_content, success=True):
             }
         }
         
-        response = requests.post(DINGTALK_WEBHOOK, json=data, timeout=10)
+        response = requests.post(webhook, json=data, timeout=10)
         result = response.json()
         
         if result.get('errcode') == 0:

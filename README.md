@@ -110,13 +110,20 @@ JUEJIN_EMAIL_TO=收件人邮箱
 ```bash
 # 必填
 GV_SENDER_EMAIL=your_email@gmail.com
-GV_SENDER_PASSWORD=xxxxxxxxxxxxxxxx  # 16 位应用专用密码（不是登录密码！）
+GV_SENDER_PASSWORD=xxxxxxxxxxxxxxxx  # 16 位应用专用密码
 GV_RECEIVER_EMAIL=xxxxxxxx@txt.voice.google.com
 
 # 可选
 GV_USE_YAN_YAN=true
 GV_YAN_YAN_API=https://v1.hitokoto.cn/
-GV_DINGTALK_WEBHOOK=https://oapi.dingtalk.com/robot/send?access_token=xxx  # 钉钉机器人 Webhook
+```
+
+### 钉钉通知（全局通用）
+
+```bash
+# 青龙面板全局配置，所有脚本共用
+DD_BOT_TOKEN=xxx  # 钉钉机器人 access_token
+DD_BOT_SECRET=xxx  # 加签密钥（可选）
 ```
 
 **⚠️ 重要：必须使用应用专用密码！**

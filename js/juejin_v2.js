@@ -5,14 +5,14 @@
  * 优化：2026-03-11
  */
 
-const sign_in = require('./src/signIn');
-const draw = require('./src/draw');
-const dipLucky = require('./src/dipLucky');
-const sendMail = require('./src/sendMail');
-const sendDingTalk = require('./src/sendDingTalk');
-const sendWxWork = require('./src/sendWxWork');
-const getPoint = require('./src/getPoint');
-const { autoGame } = require('./src/games/autoRun');
+const sign_in = require('../lib/signIn');
+const draw = require('../lib/draw');
+const dipLucky = require('../lib/dipLucky');
+const sendMail = require('../lib/sendMail');
+const sendDingTalk = require('../lib/sendDingTalk');
+const sendWxWork = require('../lib/sendWxWork');
+const getPoint = require('../lib/getPoint');
+const { autoGame } = require('../lib/games/autoRun');
 
 // 配置项（可通过环境变量覆盖）
 const CONFIG = {

@@ -151,7 +151,7 @@ async function doDraw() {
 // 挖矿游戏（简化版，调用外部模块）
 async function doGame() {
   try {
-    const { autoGame } = require('./src/games/autoRun');
+    const { autoGame } = require('../lib/games/autoRun');
     await autoGame();
     return '挖矿成功！';
   } catch (error) {
@@ -162,7 +162,7 @@ async function doGame() {
 // 沾喜气
 async function doDipLucky() {
   try {
-    const dipLucky = require('./src/dipLucky');
+    const dipLucky = require('../lib/dipLucky');
     return await dipLucky();
   } catch (error) {
     throw new Error(`沾喜气失败：${error.message}`);
@@ -173,7 +173,7 @@ async function doDipLucky() {
 
 async function sendMailNotification(data) {
   try {
-    const sendMail = require('./src/sendMail');
+    const sendMail = require('../lib/sendMail');
     const html = `
 <h1 style="text-align: center">🎉 掘金自动签到通知</h1>
 <table style="margin: 20px auto; border-collapse: collapse; width: 80%;">
@@ -199,7 +199,7 @@ async function sendMailNotification(data) {
 
 async function sendDingTalkNotification(data) {
   try {
-    const sendDingTalk = require('./src/sendDingTalk');
+    const sendDingTalk = require('../lib/sendDingTalk');
     const msg = `🎉 掘金自动签到通知
 ━━━━━━━━━━━━━━━━
 🧧 沾喜气结果：${data.dip_res}
@@ -220,7 +220,7 @@ async function sendDingTalkNotification(data) {
 
 async function sendWxWorkNotification(data) {
   try {
-    const sendWxWork = require('./src/sendWxWork');
+    const sendWxWork = require('../lib/sendWxWork');
     const markdown = `## 🎉 掘金自动签到通知
 > 🧧 沾喜气结果：<font color="comment">${data.dip_res}</font>
 > 💎 当前矿石：<font color="comment">${data.now_score}</font>

@@ -62,7 +62,7 @@
 qinglong-scripts/
 ├── js/
 │   └── juejin_v3.js      # 主脚本
-└── src/
+└── lib/
     ├── env.js            # 环境变量配置
     ├── sendMail.js       # 邮件发送（原生 SMTP）
     ├── sendDingTalk.js   # 钉钉通知（原生 https）

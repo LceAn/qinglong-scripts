@@ -183,16 +183,19 @@ def main():
     # 设置邮件主题
     subject = "Google Voice 保号短信"
     
-    # 生成邮件正文
+    # 生成邮件正文（短信内容，需要简洁）
     if USE_YAN_YAN:
         print("📖 正在获取每日一言...")
         daily_quote = get_daily_quote()
-        body = f"【Google Voice 自动保号】\n\n此短信为自动保号 Google Voice 所用的自动发送短信。\n\n📝 每日一言：\n{daily_quote}\n\n感谢使用！"
+        # 精简版：只保留核心内容，避免被截断
+        body = f"GV 保号\n{daily_quote}"
         print(f"✅ 已获取每日一言：{daily_quote[:30]}...")
+        print(f"📱 短信内容：{body}")
     else:
-        random_chinese = generate_random_chinese(32)
-        body = f"【Google Voice 自动保号】\n\n此短信为自动保号 Google Voice 所用的自动发送短信，后方中文为规避风控所用，请勿理会。\n\n{random_chinese}"
+        random_chinese = generate_random_chinese(16)
+        body = f"GV 保号 {random_chinese}"
         print("✅ 已生成随机中文字符")
+        print(f"📱 短信内容：{body}")
     
     print("-" * 50)
     

@@ -4,7 +4,7 @@
  * 作者：G
  * 优化：2026-03-11
  * 
- * cron: 51 9 * * * juejin_v3.js
+ * @cron 51 9 * * *
  * 
  * 环境变量:
  * - JUEJIN_COOKIE: 必填，掘金 Cookie
@@ -15,7 +15,9 @@
  * - JUEJIN_RETRY_DELAY: 可选，默认 1000，重试延迟 (ms)
  */
 
-const fetch = require('node-fetch');
+const https = require('https');
+const http = require('http');
+const { URL } = require('url');
 
 // ==================== 配置 ====================
 const CONFIG = {
@@ -26,6 +28,57 @@ const CONFIG = {
   RETRY_TIMES: parseInt(process.env.JUEJIN_RETRY_TIMES) || 3,
   RETRY_DELAY: parseInt(process.env.JUEJIN_RETRY_DELAY) || 1000,
 };
+
+// ==================== 原生 HTTP 请求封装 ====================
+
+/**
+ * 原生 HTTP/HTTPS 请求
+ */
+function httpRequest(url, options = {}) {
+  return new Promise((resolve, reject) => {
+    const parsedUrl = new URL(url);
+    const postData = options.body ? JSON.stringify(options.body) : null;
+    
+    const reqOptions = {
+      hostname: parsedUrl.hostname,
+      port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
+      path: parsedUrl.pathname + parsedUrl.search,
+      method: options.method || 'GET',
+      headers: options.headers || {},
+    };
+    
+    if (postData) {
+      reqOptions.headers['Content-Type'] = 'application/json';
+      reqOptions.headers['Content-Length'] = Buffer.byteLength(postData);
+    }
+    
+    const req = (parsedUrl.protocol === 'https:' ? https : http).request(reqOptions, (res) => {
+      let chunks = [];
+      
+      res.on('data', (chunk) => {
+        chunks.push(chunk);
+      });
+      
+      res.on('end', () => {
+        const response = Buffer.concat(chunks).toString();
+        try {
+          resolve(JSON.parse(response));
+        } catch (e) {
+          resolve({ raw: response });
+        }
+      });
+    });
+    
+    req.on('error', (e) => {
+      reject(new Error(`请求失败：${e.message}`));
+    });
+    
+    if (postData) {
+      req.write(postData);
+    }
+    req.end();
+  });
+}
 
 // API Headers
 const getHeaders = () => ({
@@ -42,16 +95,14 @@ const getHeaders = () => ({
 
 // ==================== 工具函数 ====================
 
-// 带重试的 fetch 请求
+// 带重试的请求
 async function request(url, options = {}, retries = CONFIG.RETRY_TIMES) {
   for (let i = 0; i < retries; i++) {
     try {
-      const response = await fetch(url, {
+      const data = await httpRequest(url, {
         ...options,
         headers: { ...getHeaders(), ...options.headers },
-        credentials: 'include',
       });
-      const data = await response.json();
       
       if (data.err_no !== 0) {
         throw new Error(data.err_msg || `API 错误：${data.err_no}`);
@@ -93,7 +144,7 @@ async function checkTodayStatus() {
   const data = await request('https://api.juejin.cn/growth_api/v1/get_today_status', {
     method: 'GET',
   });
-  return data.data; // true = 已签到
+  return data.data;
 }
 
 // 签到
@@ -105,7 +156,6 @@ async function doSignIn() {
     success: true,
     message: `签到成功！当前积分：${data.data.sum_point}`,
     sumPoint: data.data.sum_point,
-    increment: data.data.sum_point - (data.data.sum_point - data.data.incr_point),
   };
 }
 
@@ -140,7 +190,6 @@ async function doDraw() {
   const lotteryName = data.data.lottery_name || '未知奖品';
   const lotteryType = data.data.lottery_type;
   
-  // 矿石奖励类型
   if (lotteryType === 1) {
     return `抽奖成功！获得 ${lotteryName} (+66 矿石)`;
   }
@@ -148,14 +197,14 @@ async function doDraw() {
   return `抽奖成功！获得 ${lotteryName}`;
 }
 
-// 挖矿游戏（简化版，调用外部模块）
+// 挖矿游戏
 async function doGame() {
   try {
     const { autoGame } = require('../lib/games/autoRun');
     await autoGame();
     return '挖矿成功！';
   } catch (error) {
-    throw new Error(`挖矿失败：${error.message}`);
+    return `挖矿失败：${error.message}`;
   }
 }
 
@@ -165,7 +214,7 @@ async function doDipLucky() {
     const dipLucky = require('../lib/dipLucky');
     return await dipLucky();
   } catch (error) {
-    throw new Error(`沾喜气失败：${error.message}`);
+    return `沾喜气失败：${error.message}`;
   }
 }
 
@@ -177,10 +226,7 @@ async function sendMailNotification(data) {
     const html = `
 <h1 style="text-align: center">🎉 掘金自动签到通知</h1>
 <table style="margin: 20px auto; border-collapse: collapse; width: 80%;">
-  <tr style="background: #f5f5f5;">
-    <td style="padding: 10px; border: 1px solid #ddd;"><strong>项目</strong></td>
-    <td style="padding: 10px; border: 1px solid #ddd;"><strong>结果</strong></td>
-  </tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 10px; border: 1px solid #ddd;"><strong>项目</strong></td><td style="padding: 10px; border: 1px solid #ddd;"><strong>结果</strong></td></tr>
   <tr><td style="padding: 10px; border: 1px solid #ddd;">🧧 沾喜气</td><td style="padding: 10px; border: 1px solid #ddd;">${data.dip_res}</td></tr>
   <tr><td style="padding: 10px; border: 1px solid #ddd;">💎 当前矿石</td><td style="padding: 10px; border: 1px solid #ddd;">${data.now_score}</td></tr>
   <tr><td style="padding: 10px; border: 1px solid #ddd;">📈 较昨日增长</td><td style="padding: 10px; border: 1px solid #ddd;">${data.growth}</td></tr>
@@ -190,7 +236,7 @@ async function sendMailNotification(data) {
 </table>
 <p style="text-align: center; color: #999; font-size: 12px; margin-top: 20px;">执行时间：${new Date().toLocaleString('zh-CN')}</p>
 `;
-    await sendMail({ from: '掘金', subject: '🎉 自动签到通知', html });
+    await sendMail({ from: '掘金助手', subject: '🎉 自动签到通知', html });
     console.log('✅ 邮件通知发送完成');
   } catch (error) {
     console.error('❌ 邮件通知失败:', error.message);
@@ -316,15 +362,15 @@ async function sendWxWorkNotification(data) {
     
     const notifyPromises = [];
     
-    if (CONFIG.ENABLE_MAIL) {
+    if (CONFIG.ENABLE_MAIL && process.env.JUEJIN_EMAIL_USER) {
       notifyPromises.push(sendMailNotification(result));
     }
     
-    if (CONFIG.ENABLE_DINGTALK) {
+    if (CONFIG.ENABLE_DINGTALK && process.env.JUEJIN_DINGDING_WEBHOOK) {
       notifyPromises.push(sendDingTalkNotification(result));
     }
     
-    if (CONFIG.ENABLE_WXWORK) {
+    if (CONFIG.ENABLE_WXWORK && process.env.JUEJIN_WEIXIN_WEBHOOK) {
       notifyPromises.push(sendWxWorkNotification(result));
     }
     

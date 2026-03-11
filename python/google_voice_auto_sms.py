@@ -12,6 +12,7 @@ Google Voice Auto SMS - 自动保号短信发送脚本
 """
 
 import smtplib
+import os
 from email.mime.text import MIMEText
 from email.header import Header
 import random
@@ -19,12 +20,20 @@ import requests
 import json
 
 # ==================== 配置区域 ====================
-# 邮箱设置
+# 从环境变量读取配置
+sender_email = os.environ.get('GV_SENDER_EMAIL', '')
+sender_password = os.environ.get('GV_SENDER_PASSWORD', '')
+receiver_email = os.environ.get('GV_RECEIVER_EMAIL', '')
+
+# SMTP 设置
 smtp_server = "smtp.gmail.com"
-smtp_port = 587
-sender_email = "your_email@gmail.com"  # 替换为你的 Gmail 邮箱
-sender_password = "your_app_password"  # 替换为你的应用专用密码
-receiver_email = "xxxxxxxx@txt.voice.google.com"  # 替换为接收者的邮箱地址
+smtp_port = 587  # TLS 端口，也可以用 465（SSL）
+
+# 每日一言 API 设置
+YAN_YAN_API = "https://v1.hitokoto.cn/"
+USE_YAN_YAN = os.environ.get('GV_USE_YAN_YAN', 'true').lower() == 'true'
+if os.environ.get('GV_YAN_YAN_API'):
+    YAN_YAN_API = os.environ.get('GV_YAN_YAN_API')
 
 # 每日一言 API 设置
 # 可选 API:
@@ -89,6 +98,16 @@ def send_email(subject, body):
         print(f"❌ 连接 SMTP 服务器失败：{e}")
     except smtplib.SMTPAuthenticationError as e:
         print(f"❌ SMTP 认证失败：{e}")
+        print("\n💡 可能原因：")
+        print("   1. 使用的是 Gmail 登录密码，而非应用专用密码")
+        print("   2. 未开启 Gmail 两步验证")
+        print("   3. 应用专用密码已过期或错误")
+        print("\n✅ 解决方法：")
+        print("   1. 访问：https://myaccount.google.com/security")
+        print("   2. 开启两步验证")
+        print("   3. 访问：https://myaccount.google.com/apppasswords")
+        print("   4. 生成新的应用专用密码（选择'邮件'）")
+        print("   5. 复制 16 位密码（去掉空格）配置到青龙")
     except smtplib.SMTPException as e:
         print(f"❌ SMTP 错误：{e}")
     except Exception as e:
@@ -110,6 +129,34 @@ def main():
     print("=" * 50)
     print("🎯 Google Voice 自动保号短信发送")
     print("=" * 50)
+    
+    # 检查环境变量配置
+    print("\n📋 检查配置...")
+    if not sender_email:
+        print("❌ 错误：GV_SENDER_EMAIL 未配置！")
+        print("   请在青龙面板添加环境变量 GV_SENDER_EMAIL=your_email@gmail.com")
+        return False
+    if not sender_password:
+        print("❌ 错误：GV_SENDER_PASSWORD 未配置！")
+        print("   注意：需要使用 Gmail 应用专用密码，不是登录密码！")
+        print("   获取方法：https://myaccount.google.com/apppasswords")
+        return False
+    if not receiver_email:
+        print("❌ 错误：GV_RECEIVER_EMAIL 未配置！")
+        print("   请在青龙面板添加环境变量 GV_RECEIVER_EMAIL=xxx@txt.voice.google.com")
+        return False
+    
+    print(f"✅ 发件邮箱：{sender_email}")
+    print(f"✅ 收件邮箱：{receiver_email}")
+    print(f"✅ 应用密码：{'*' * len(sender_password)} ({len(sender_password)}位)")
+    
+    # 检查密码格式
+    if len(sender_password) != 16:
+        print(f"\n⚠️  警告：应用专用密码应该是 16 位，当前为{len(sender_password)}位")
+        print("   如果不是 16 位，可能配置的是登录密码而非应用专用密码！")
+        print("   获取应用专用密码：https://myaccount.google.com/apppasswords")
+    
+    print("\n" + "-" * 50)
     
     # 设置邮件主题
     subject = "Google Voice 保号短信"

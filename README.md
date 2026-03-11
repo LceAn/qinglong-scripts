@@ -110,7 +110,7 @@ JUEJIN_EMAIL_TO=收件人邮箱
 ```bash
 # 必填
 GV_SENDER_EMAIL=your_email@gmail.com
-GV_SENDER_PASSWORD=your_app_password
+GV_SENDER_PASSWORD=xxxxxxxxxxxxxxxx  # 16 位应用专用密码（不是登录密码！）
 GV_RECEIVER_EMAIL=xxxxxxxx@txt.voice.google.com
 
 # 可选
@@ -118,22 +118,33 @@ GV_USE_YAN_YAN=true
 GV_YAN_YAN_API=https://v1.hitokoto.cn/
 ```
 
-**获取方法：**
+**⚠️ 重要：必须使用应用专用密码！**
 
-1. **Gmail 应用专用密码：**
-   - 登录 Google 账户 → 安全设置
-   - 启用两步验证
-   - 生成应用专用密码
-   - 复制密码并保存
+Gmail 不允许使用登录密码进行 SMTP 认证，必须使用**应用专用密码（App Password）**。
 
-2. **Google Voice 接收邮箱：**
-   - 访问 [Google Voice](https://voice.google.com/)
-   - 进入设置 → 账号
-   - 找到短信转发邮箱（格式：`xxxxxxxx@txt.voice.google.com`）
+**获取应用专用密码步骤：**
 
-3. **配置到青龙：**
+1. **开启两步验证**
+   - 访问：https://myaccount.google.com/security
+   - 找到 **两步验证** 并开启
+   - 按提示完成手机验证
+
+2. **生成应用专用密码**
+   - 访问：https://myaccount.google.com/apppasswords
+   - 选择应用：**邮件**
+   - 选择设备：**其他（自定义名称）**
+   - 输入名称：`QingLong` 或任意
+   - 点击 **生成**
+   - 复制生成的 **16 位密码**（格式：`xxxx xxxx xxxx xxxx`）
+
+3. **配置到青龙**
    - 青龙面板 → 环境变量
-   - 添加上述环境变量
+   - 添加 `GV_SENDER_PASSWORD` = 16 位密码（去掉空格）
+
+**Google Voice 接收邮箱获取：**
+- 访问 [Google Voice](https://voice.google.com/)
+- 进入设置 → 账号
+- 找到短信转发邮箱（格式：`xxxxxxxx@txt.voice.google.com`）
 
 ---
 

@@ -12,7 +12,7 @@
 
 ## 🔧 配置方法
 
-### 1. 青龙环境变量
+### 1. 环境变量
 
 在青龙面板添加以下环境变量：
 
@@ -24,6 +24,16 @@
 | `JUEJIN_ENABLE_WXWORK` | ❌ | 启用企业微信通知 | `true` |
 | `JUEJIN_RETRY_TIMES` | ❌ | 请求重试次数 | `3` |
 | `JUEJIN_RETRY_DELAY` | ❌ | 重试延迟 (毫秒) | `1000` |
+
+### 通知配置（可选）
+
+| 变量名 | 说明 |
+|--------|------|
+| `JUEJIN_EMAIL_USER` | 发件人邮箱 |
+| `JUEJIN_EMAIL_PASS` | 邮箱密码/授权码 |
+| `JUEJIN_EMAIL_TO` | 收件人邮箱（不填则发给发件人） |
+| `JUEJIN_DINGDING_WEBHOOK` | 钉钉机器人 Webhook |
+| `JUEJIN_WEIXIN_WEBHOOK` | 企业微信机器人 Webhook |
 
 ### 2. 获取 Cookie
 
@@ -39,36 +49,28 @@
 
 ```bash
 # 每天 9:51 执行
-51 9 * * * juejin_v3.js
+51 9 * * * js/juejin_v3.js
 ```
 
 ## 📦 依赖说明
 
-### 1. 安装依赖
+✅ **无需安装任何依赖！开箱即用！**
 
-在青龙容器执行：
-
-```bash
-cd /ql/scripts/qinglong-scripts  # 进入脚本目录
-pnpm install                      # 安装 axios 和 nodemailer
-```
-
-### 2. 目录结构
+所有模块均为纯原生 JavaScript 实现：
 
 ```
 qinglong-scripts/
 ├── js/
 │   └── juejin_v3.js      # 主脚本
-├── src/
-│   ├── env.js            # 环境变量配置
-│   ├── sendMail.js       # 邮件发送模块
-│   ├── sendDingTalk.js   # 钉钉机器人模块
-│   ├── sendWxWork.js     # 企业微信机器人模块
-│   ├── dipLucky.js       # 沾喜气模块
-│   ├── notify.js         # 统一通知模块
-│   └── games/
-│       └── autoRun.js    # 挖矿游戏模块
-└── package.json          # 依赖声明
+└── src/
+    ├── env.js            # 环境变量配置
+    ├── sendMail.js       # 邮件发送（原生 SMTP）
+    ├── sendDingTalk.js   # 钉钉通知（原生 https）
+    ├── sendWxWork.js     # 企业微信通知（原生 https）
+    ├── dipLucky.js       # 沾喜气模块
+    ├── notify.js         # 统一通知模块
+    └── games/
+        └── autoRun.js    # 挖矿游戏模块
 ```
 
 ## 📝 通知示例
@@ -102,6 +104,7 @@ qinglong-scripts/
 2. **频率限制** - 不要设置过于频繁的执行时间
 3. **账号安全** - 妥善保管 Cookie，不要泄露
 4. **通知配置** - 如不需要某种通知，设置对应环境变量为 `false`
+5. **邮箱配置** - QQ 邮箱需使用授权码（非登录密码）
 
 ## 🐛 常见问题
 
@@ -111,8 +114,11 @@ A: 检查青龙环境变量 `JUEJIN_COOKIE` 是否正确设置
 ### Q: 签到失败，提示 API 错误
 A: Cookie 可能已过期，请重新获取
 
-### Q: 通知发送失败
-A: 检查对应的通知模块（sendMail/sendDingTalk/sendWxWork）是否正确配置
+### Q: 邮件发送失败
+A: 
+- QQ 邮箱：使用授权码（非登录密码）
+- 检查 SMTP 是否开启
+- 检查防火墙设置
 
 ### Q: 如何禁用某个通知通道？
 A: 设置对应环境变量为 `false`，例如：
@@ -123,8 +129,8 @@ JUEJIN_ENABLE_MAIL=false
 ## 📄 版本历史
 
 - **v3.0** (2026-03-11) - 整合优化版
+  - ✅ 纯原生实现，无需安装依赖
   - 修复旧版本 cookie 配置错误
-  - 移除过时的 Env 框架依赖
   - 新增重试机制和多通道通知
   - 优化错误处理和日志输出
 

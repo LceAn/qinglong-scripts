@@ -44,19 +44,31 @@
 
 ## 📦 依赖说明
 
-脚本依赖以下模块（需放在 `src/` 目录）：
+### 1. 安装依赖
+
+在青龙容器执行：
+
+```bash
+cd /ql/scripts/qinglong-scripts  # 进入脚本目录
+pnpm install                      # 安装 axios 和 nodemailer
+```
+
+### 2. 目录结构
 
 ```
 qinglong-scripts/
 ├── js/
 │   └── juejin_v3.js      # 主脚本
-└── src/
-    ├── sendMail.js       # 邮件发送模块
-    ├── sendDingTalk.js   # 钉钉机器人模块
-    ├── sendWxWork.js     # 企业微信机器人模块
-    ├── dipLucky.js       # 沾喜气模块
-    └── games/
-        └── autoRun.js    # 挖矿游戏模块
+├── src/
+│   ├── env.js            # 环境变量配置
+│   ├── sendMail.js       # 邮件发送模块
+│   ├── sendDingTalk.js   # 钉钉机器人模块
+│   ├── sendWxWork.js     # 企业微信机器人模块
+│   ├── dipLucky.js       # 沾喜气模块
+│   ├── notify.js         # 统一通知模块
+│   └── games/
+│       └── autoRun.js    # 挖矿游戏模块
+└── package.json          # 依赖声明
 ```
 
 ## 📝 通知示例

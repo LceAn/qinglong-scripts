@@ -116,6 +116,7 @@ GV_RECEIVER_EMAIL=xxxxxxxx@txt.voice.google.com
 # 可选
 GV_USE_YAN_YAN=true
 GV_YAN_YAN_API=https://v1.hitokoto.cn/
+GV_DINGTALK_WEBHOOK=https://oapi.dingtalk.com/robot/send?access_token=xxx  # 钉钉机器人 Webhook
 ```
 
 **⚠️ 重要：必须使用应用专用密码！**

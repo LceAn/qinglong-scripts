@@ -19,6 +19,7 @@ from email.header import Header
 import random
 import requests
 import json
+from datetime import datetime
 
 # ==================== 配置区域 ====================
 # 从环境变量读取配置
@@ -35,6 +36,9 @@ YAN_YAN_API = "https://v1.hitokoto.cn/"
 USE_YAN_YAN = os.environ.get('GV_USE_YAN_YAN', 'true').lower() == 'true'
 if os.environ.get('GV_YAN_YAN_API'):
     YAN_YAN_API = os.environ.get('GV_YAN_YAN_API')
+
+# 钉钉通知设置
+DINGTALK_WEBHOOK = os.environ.get('GV_DINGTALK_WEBHOOK', '')
 
 # 每日一言 API 设置
 # 可选 API:
@@ -74,6 +78,58 @@ def generate_random_chinese(length):
     生成随机中文字符（备用方案）
     """
     return ''.join(chr(random.randint(0x4e00, 0x9fff)) for _ in range(length))
+
+def send_dingtalk_notification(sender_email, sms_content, success=True):
+    """
+    发送通知到钉钉机器人
+    """
+    if not DINGTALK_WEBHOOK:
+        print("ℹ️  未配置钉钉 Webhook，跳过通知")
+        return False
+    
+    try:
+        print("📱 正在发送钉钉通知...")
+        
+        # 构建消息内容
+        if success:
+            status_emoji = "✅"
+            status_text = "发送成功"
+        else:
+            status_emoji = "❌"
+            status_text = "发送失败"
+        
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Markdown 格式消息
+        content = f"""## {status_emoji} Google Voice 保号短信
+
+> 📧 发件邮箱：`{sender_email}`
+> 📱 短信内容：{sms_content}
+> ⏰ 发送时间：{current_time}
+> 📊 状态：{status_text}
+"""
+        
+        data = {
+            "msgtype": "markdown",
+            "markdown": {
+                "title": "Google Voice 保号短信通知",
+                "text": content
+            }
+        }
+        
+        response = requests.post(DINGTALK_WEBHOOK, json=data, timeout=10)
+        result = response.json()
+        
+        if result.get('errcode') == 0:
+            print("✅ 钉钉通知发送成功")
+            return True
+        else:
+            print(f"❌ 钉钉通知发送失败：{result.get('errmsg', '未知错误')}")
+            return False
+            
+    except Exception as e:
+        print(f"❌ 钉钉通知异常：{e}")
+        return False
 
 def send_email(subject, body):
     """
@@ -202,6 +258,10 @@ def main():
     
     # 发送邮件
     success = send_email(subject, body)
+    
+    # 发送钉钉通知
+    print("\n📱 发送通知...")
+    send_dingtalk_notification(sender_email, body, success)
     
     print("=" * 50)
     if success:

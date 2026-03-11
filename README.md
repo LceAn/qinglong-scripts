@@ -89,11 +89,12 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 JUEJIN_COOKIE=你的掘金 Cookie
 
 # 通知（可选）
-JUEJIN_DINGDING_WEBHOOK=钉钉机器人 Webhook
 JUEJIN_WEIXIN_WEBHOOK=企业微信机器人 Webhook
 JUEJIN_EMAIL_USER=发件人邮箱
 JUEJIN_EMAIL_PASS=邮箱密码/授权码
 JUEJIN_EMAIL_TO=收件人邮箱
+
+# 钉钉通知使用全局配置（见下方）
 ```
 
 **Cookie 获取方法：**
@@ -247,6 +248,12 @@ ql repo https://github.com/LceAn/qinglong-scripts.git
 ---
 
 ## 📝 更新日志
+
+### v3.5 - 2026-03-11
+- 🔧 掘金脚本 - 使用青龙标准钉钉环境变量（DD_BOT_TOKEN），移除 JUEJIN_DINGDING_WEBHOOK
+- 🔧 lib/sendDingTalk.js - 支持 DD_BOT_SECRET 签名
+- 🔧 lib/sendDingTalk.js - 改为 Markdown 格式消息
+- 📖 更新 README 说明所有脚本共用钉钉配置
 
 ### v3.4 - 2026-03-11
 - ✨ Google Voice 脚本 v1.3 - 使用青龙标准钉钉环境变量（DD_BOT_TOKEN）

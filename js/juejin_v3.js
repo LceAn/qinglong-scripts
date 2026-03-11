@@ -246,19 +246,17 @@ async function sendMailNotification(data) {
 async function sendDingTalkNotification(data) {
   try {
     const sendDingTalk = require('../lib/sendDingTalk');
-    const msg = `🎉 掘金自动签到通知
-━━━━━━━━━━━━━━━━
-🧧 沾喜气结果：${data.dip_res}
-💎 当前矿石：${data.now_score}
-📈 较昨日增长：${data.growth}
-✍️ 签到结果：${data.sign_res}
-🎰 抽奖结果：${data.draw_res}
-⛏️  游戏结果：${data.game_res}
-━━━━━━━━━━━━━━━━
-执行时间：${new Date().toLocaleString('zh-CN')}`;
+    const msg = `## 🎉 掘金自动签到通知
+> 🧧 沾喜气结果：${data.dip_res}
+> 💎 当前矿石：${data.now_score}
+> 📈 较昨日增长：${data.growth}
+> ✍️ 签到结果：${data.sign_res}
+> 🎰 抽奖结果：${data.draw_res}
+> ⛏️  游戏结果：${data.game_res}
+> 
+> ⏰ 执行时间：${new Date().toLocaleString('zh-CN')}`;
 
-    await sendDingTalk(msg);
-    console.log('✅ 钉钉通知发送完成');
+    await sendDingTalk(msg, '掘金签到通知');
   } catch (error) {
     console.error('❌ 钉钉通知失败:', error.message);
   }

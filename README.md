@@ -24,7 +24,19 @@
 
 ### 1️⃣ 拉取仓库
 
-在青龙面板中执行：
+**推荐方式（排除依赖目录）：**
+
+```bash
+ql repo https://github.com/LceAn/qinglong-scripts.git "js/|python/" "" "lib/"
+```
+
+**参数说明：**
+- 第 1 个参数：仓库地址
+- 第 2 个参数：白名单（只扫描 `js/` 和 `python/` 目录）
+- 第 3 个参数：留空
+- 第 4 个参数：黑名单（`lib/` 目录不创建任务）
+
+**或者基础拉取：**
 
 ```bash
 ql repo https://github.com/LceAn/qinglong-scripts.git

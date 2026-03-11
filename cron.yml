@@ -1,0 +1,12 @@
+# 青龙定时任务配置文件
+# 格式：脚本路径 -> cron 表达式
+# 青龙面板会自动识别这些配置并应用到对应的定时任务
+
+# 掘金签到系列
+js/juejin_v3.js: 51 9 * * *    # 每天 9:51 执行
+js/juejin_v2.js: 51 9 * * *    # 每天 9:51 执行
+
+# Python 脚本系列
+python/google_voice_auto_sms.py: 0 0 */15 * * *    # 每 15 天 0:00 执行
+python/baidu_tieba.py: 0 9 * * *                   # 每天 9:00 执行
+python/baidu_wangpan.py: 0 8 * * *                 # 每天 8:00 执行
